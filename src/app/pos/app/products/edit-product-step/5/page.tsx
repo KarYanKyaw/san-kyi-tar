@@ -91,7 +91,7 @@ const EditProductPageFive = () => {
             .instanceof(File)
             .refine(
               (file) => validImageTypes.includes(file.type),
-              ".jpg, .jpeg and .png files are accepted."
+              ".jpg, .jpeg and .png image/webp files are accepted."
             )
             .optional()
         : z.any(),
@@ -143,6 +143,7 @@ const EditProductPageFive = () => {
     data: putData,
     trigger: edit,
     error: editError,
+    isMutating: editIsMutating,
   } = useSWRMutation(
     `${Backend_URL}/product-variants/${editMode.id}`,
     putFetcher
@@ -156,6 +157,7 @@ const EditProductPageFive = () => {
     data: postData,
     trigger: add,
     error,
+    isMutating: addIsMutating,
   } = useSWRMutation(`${Backend_URL}/product-variants`, postFetcher);
 
   const onSubmit = async (value: any) => {
@@ -181,7 +183,6 @@ const EditProductPageFive = () => {
         setVariants(
           variants.map((el) => (el.id == editMode.id ? res.data : el))
         );
-        setImage(undefined);
         reset({
           image: undefined,
           shopCode: "",
@@ -194,7 +195,7 @@ const EditProductPageFive = () => {
           id: "",
         });
         setSize("");
-        return;
+        setImage("");
       }
     } else {
       formData.append("productId", `${editProductFormData.id}`);
@@ -203,7 +204,7 @@ const EditProductPageFive = () => {
       const res = await add(formData);
       if (res.status) {
         setVariants([...variants, res.data]);
-        setImage(undefined);
+        setImage("");
         reset({
           image: undefined,
           shopCode: "",
@@ -214,6 +215,8 @@ const EditProductPageFive = () => {
         setSize("");
       }
     }
+
+    console.log(value);
   };
 
   const [idToDelete, setIdToDelete] = useState<number | undefined>();
@@ -250,6 +253,8 @@ const EditProductPageFive = () => {
     setSize(data.productSizing.name);
     setImage(data.media.url);
   };
+
+  console.log(image);
 
   return (
     <div className="space-y-4">
@@ -393,15 +398,21 @@ const EditProductPageFive = () => {
                   type="text"
                 />
 
-                <Button>
+                <Button disabled={editIsMutating || addIsMutating}>
                   <Plus />
                 </Button>
               </div>
             </form>
 
-            {Object.keys(errors).length > 0 && (
+            {!errors.image && Object.keys(errors).length > 0 && (
               <p className="text-sm text-red-500">
                 Please fill all necessary information.
+              </p>
+            )}
+
+            {errors.image && (
+              <p className="text-sm text-red-500">
+                {errors.image.message as string}
               </p>
             )}
           </div>

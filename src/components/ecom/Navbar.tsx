@@ -93,7 +93,7 @@ const Navbar = () => {
                 setSearchInputValue("");
                 router.push("/");
               }}
-              className="lg:text-xl font-serif text-lg cursor-pointer font-semibold"
+              className="lg:text-xl font- text-lg cursor-pointer font-semibold"
             >
               Boss Nation
             </p>

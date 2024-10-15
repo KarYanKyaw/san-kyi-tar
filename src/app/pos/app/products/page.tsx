@@ -251,7 +251,7 @@ export default function ProductPage() {
                   lastPage={data?.totalPages}
                 />
               </div>
-          )}
+            )}
           </>
         )}
       </div>

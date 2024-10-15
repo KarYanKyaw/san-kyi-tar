@@ -12,11 +12,10 @@ import ErrorComponent from "@/components/ErrorComponent";
 import { Backend_URL, getFetchForEcom } from "@/lib/fetch";
 import { SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import ControlSheet from "@/components/ecom/ControlSheet";
 import FilterForm from "@/components/ecom/FilterForm";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -25,10 +24,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type Filter = {
+  brands: [];
+  category: [];
+  fitting: [];
+  genders: [];
+  type: [];
+  size: [];
+};
+
 const GeneralizedPage = ({ params }: { params: any }) => {
   const [sorting, setSorting] = useState("");
   const closeRef = useRef<HTMLButtonElement | null>(null);
-  const [limit, setLimit] = useState(8);
   const router = useRouter();
 
   // Decode the entire slug
@@ -65,6 +72,31 @@ const GeneralizedPage = ({ params }: { params: any }) => {
     }/${formattedResult}`;
     router.push(newUrl); // use router.push to trigger a re-render
   };
+
+  const [amount, setAmount] = useState(0);
+  const [filters, setFilters] = useState<Filter[]>([]);
+
+  useEffect(() => {
+    const storedFilters = localStorage.getItem("filters");
+    if (storedFilters) {
+      const parsedFilters = JSON.parse(storedFilters);
+      setFilters([parsedFilters]);
+    }
+  }, [typeof window !== undefined && localStorage.getItem("filters")]);
+
+  useEffect(() => {
+    if (filters.length > 0) {
+      setAmount(
+        [
+          ...filters[0].brands,
+          ...filters[0].type,
+          ...filters[0].category,
+          ...filters[0].fitting,
+          ...filters[0].genders,
+        ].length
+      );
+    }
+  }, [filters]);
 
   return (
     <div className="py-8 space-y-4">
@@ -107,6 +139,7 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                 <>
                   <SlidersHorizontal size={18} />{" "}
                   <span className="ms-1">Filter & Sort</span>
+                  {amount > 0 && <span className=" ms-1">({amount})</span>}
                 </>
               }
               title="Filter"

@@ -182,7 +182,7 @@ const ProductCard = ({
           src={medias[0]?.url}
           width={500}
           height={500}
-          className=" h-[500px] lg:h-[600px] object-cover "
+          className=" h-[500px] lg:h-[600px] object-cover object-top"
           alt=""
         />
         <div className=" absolute top-3 right-3">

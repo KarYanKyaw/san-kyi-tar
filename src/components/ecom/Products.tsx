@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import { Badge } from "../ui/badge";
-import Image from "next/image";
-import { Button } from "../ui/button";
-import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Heading from "./Heading";
 import ProductCard from "./ProductCard";
 import ProductSkeleton from "./ProductSkeleton";
 
@@ -49,7 +44,7 @@ const Products = ({
             <ProductSkeleton />
           </div>
         ) : (
-          <div className=" grid grid-cols-1 gap-x-[20px] gap-y-[45px] lg:grid-cols-4">
+          <div className=" grid grid-cols-2 gap-x-[20px] gap-y-[45px] lg:grid-cols-4">
             {data.length == 0 ? (
               <div className=" h-[500px] text-sm text-red-500 col-span-full text-center">
                 Thank you for your interest. Unfortunately, this product is

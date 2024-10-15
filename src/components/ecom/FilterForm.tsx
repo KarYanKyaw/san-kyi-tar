@@ -140,13 +140,7 @@ const FilterForm = ({ closeRef }: any) => {
   );
 
   useEffect(() => {
-    if (typesData) {
-      setCategoryData(
-        typesData?.data?.flatMap((el: any) => el.productCategories)
-      );
-    }
-
-    if (category.length > 0) {
+    if (category?.length > 0) {
       setFittingData(
         typesData?.data
           ?.flatMap((el: any) => el.productCategories)
@@ -169,6 +163,14 @@ const FilterForm = ({ closeRef }: any) => {
     }
   }, [typesData, category, categoryName]);
 
+  useEffect(() => {
+    if (typesData) {
+      setCategoryData(
+        typesData?.data?.flatMap((el: any) => el.productCategories)
+      );
+    }
+  }, [typesData]);
+
   // Function to handle input changes
   const handleInputChange = (index: number, value: string) => {
     const newRange = [...range];
@@ -179,6 +181,8 @@ const FilterForm = ({ closeRef }: any) => {
   const handleRangeChange = (value: any) => {
     setRange(value);
   };
+
+  console.log(brandData);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -205,7 +209,7 @@ const FilterForm = ({ closeRef }: any) => {
     // Create an array to hold the query parameters
     const queryParams = [];
 
-    // Add selected genders to the query parameters
+    // Add selected xgenders to the query parameters
     if (genders.length > 0) {
       queryParams.push(`sortGender=${genders.join(",").toLowerCase()}`);
     }

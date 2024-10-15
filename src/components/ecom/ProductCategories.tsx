@@ -73,26 +73,29 @@ const ProductCategories = () => {
                   </CarouselItem>
                 ) : (
                   data.map(
-                    ({ name, media, productCategory }: any, index: number) => (
+                    (
+                      { name, media, productCategory, id }: any,
+                      index: number
+                    ) => (
                       <CarouselItem
                         key={index}
                         onClick={() =>
                           router.push(
                             `/categories/${name.toLowerCase()}/${
                               productCategory.id
-                            }`
+                            }/${id}?page=1`
                           )
                         }
-                        className="cursor-pointer basis-2/3 lg:basis-1/3"
+                        className="cursor-pointer basis-[50%] lg:basis-[25%]"
                       >
                         <Image
                           src={media.url}
-                          className="object-cover h-[600px] w-full mx-auto"
+                          className=" h-[500px] w-full lg:h-[600px] object-cover object-top"
                           alt=""
                           width={300}
                           height={600}
                         />
-                        <div className=" font-bold p-3 text-base lg:text-base ">
+                        <div className=" font-medium p-3 text-base lg:text-base ">
                           {name}
                         </div>
                       </CarouselItem>

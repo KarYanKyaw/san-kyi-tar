@@ -36,7 +36,7 @@ export async function generateMetadata({
       url: `https://bossnnationmyanmar/products/${product.name}`,
       images: [
         {
-          url: product.mediaUrls[0].url,
+          url: product?.mediaUrls[0]?.url,
           width: 1920,
           height: 1080,
           alt: "Boss Nation",

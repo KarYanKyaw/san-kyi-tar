@@ -43,6 +43,9 @@ export const metadata: Metadata = {
     "Limited Edition",
     "Buy Online",
   ],
+  icons: {
+    icon: "/next.svg",
+  },
   openGraph: {
     title: "Boss Nation : Be Authentic. Shop With Us.",
     url: "http://boss-nation.com/",

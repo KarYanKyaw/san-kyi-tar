@@ -38,7 +38,7 @@ const fetcher = async (url: string, idToken: string) => {
 const useAuthLogin = (idToken: string | null) => {
   const { data, error } = useSWR(
     idToken
-      ? ["https://backend.boss-nation.com/auth/EcommerceLogin", idToken]
+      ? ["https://api.bossnationmyanmar.com/auth/EcommerceLogin", idToken]
       : null,
     ([url, token]) => fetcher(url, token)
   );
@@ -101,6 +101,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const idToken = await result.user.getIdToken(true);
 
       setIdToken(idToken);
+      console.log(idToken, result);
     } catch (error) {
       console.error("Error during login:", error);
     }

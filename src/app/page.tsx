@@ -18,6 +18,7 @@ import ErrorComponent from "@/components/ErrorComponent";
 import AppLayout from "@/components/ecom/AppLayout";
 import { useRouter } from "next/navigation";
 import { useAppProvider } from "./Provider/AppProvider";
+import { useEffect, useRef } from "react";
 
 export default function Home() {
   const handleLogin = async () => {
@@ -43,6 +44,12 @@ export default function Home() {
       : `${Backend_URL}/ecommerce-Products/riddle/man?limit=${4}`,
     getData
   );
+
+  const ref = useRef<null | HTMLButtonElement>(null);
+
+  useEffect(() => {
+    ref.current && ref.current.click();
+  }, []);
 
   return (
     <main className=" min-h-screen max-w-screen !overflow-x-hidden bg-secondary">
@@ -75,7 +82,6 @@ export default function Home() {
                 <Plus /> <span className=" capitalize !text-xs">VIEW MORE</span>
               </Button>
             )}
-
             <ProductCategories />
           </>
         )}

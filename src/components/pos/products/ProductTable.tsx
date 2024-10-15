@@ -141,7 +141,7 @@ const ProductTable = ({
                           <Image
                             alt=""
                             className="object-cover w-9 h-9 rounded-md"
-                            src={medias[0].url}
+                            src={medias[0]?.url}
                             width={300}
                             height={300}
                           />
