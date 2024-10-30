@@ -12,7 +12,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { useAppProvider } from "@/app/Provider/AppProvider";
 
 type controls = {

@@ -39,7 +39,7 @@ const VoucherPage = ({ params }: { params: { id: string } }) => {
       }
     }
   };
-
+  console.log(data);
   return (
     <Container>
       <NavHeader path="Voucher" parentPage="Voucher" />

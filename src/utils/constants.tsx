@@ -16,8 +16,12 @@ import {
   SlidersIcon,
   Hash,
   Newspaper,
+  ImagesIcon,
+  Images,
+  ImagePlusIcon,
+  List,
 } from "lucide-react";
-import { RulerSquareIcon } from "@radix-ui/react-icons";
+import { ChatBubbleIcon, RulerSquareIcon } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
 
 export interface menu {
@@ -210,7 +214,31 @@ export const sidebarMenuItems: menuItems = [
   },
 
   {
+    id: 33,
+    group: "Ecommerce",
+    pageName: "Comments",
+    path: "/pos/app/comment-list",
+    icon: <ChatBubbleIcon strokeWidth={1.5} />,
+  },
+
+  {
     id: 29,
+    group: "Ecommerce",
+    pageName: "Portrait Banner",
+    path: "/pos/app/portrait-banner",
+    icon: <ImagesIcon size={20} strokeWidth={1.5} />,
+  },
+
+  {
+    id: 31,
+    group: "Ecommerce",
+    pageName: "Landscape Banner",
+    path: "/pos/app/landscape-banner",
+    icon: <ImagePlusIcon size={20} strokeWidth={1.5} />,
+  },
+
+  {
+    id: 30,
     group: "Ecommerce",
     pageName: "Coupon",
     path: "/pos/app/coupon",

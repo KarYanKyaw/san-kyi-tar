@@ -9,7 +9,7 @@ import { SiFacebook, SiTiktok, SiViber } from "react-icons/si";
 
 const Footer = () => {
   const router = useRouter();
-  const { searchInputValue, setSearchInputValue, handleLogin } =
+  const { searchInputValue, setSearchInputValue, handleLogin, setSwalProps } =
     useAppProvider();
   return (
     <div className=" text-secondary/80 bg-primary">
@@ -64,6 +64,12 @@ const Footer = () => {
               <li onClick={() => handleLogin()}>Login</li>
               <li
                 onClick={() => {
+                  setSwalProps({
+                    show: true,
+                    showConfirmButton: false,
+                    type: "logout",
+                  });
+
                   typeof window !== "undefined" &&
                     localStorage.removeItem("accessToken");
                   localStorage.removeItem("userId");

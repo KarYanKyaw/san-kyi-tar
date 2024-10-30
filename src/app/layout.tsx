@@ -44,21 +44,21 @@ export const metadata: Metadata = {
     "Buy Online",
   ],
   icons: {
-    icon: "/next.svg",
+    icon: "/logo.svg",
   },
   openGraph: {
     title: "Boss Nation : Be Authentic. Shop With Us.",
     url: "http://boss-nation.com/",
     siteName: "Boss Nation",
     description: "Boss Nation : Be Authentic. Shop With Us.",
-    // images: [
-    //   {
-    //     url: "http://boss-nation.com/",
-    //     width: 1920,
-    //     height: 1080,
-    //     alt: "Boss Nation",
-    //   },
-    // ],
+    images: [
+      {
+        url : "/banner.jpg",
+        width: 1920,
+        height: 1080,
+        alt: "Boss Nation",
+      },
+    ],
   },
 };
 

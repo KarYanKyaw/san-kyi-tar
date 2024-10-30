@@ -60,6 +60,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [addedCartIds, setAddedCartIds] = useState<number[]>([]);
   const [error, setError] = useState("");
+  const [swalProps, setSwalProps] = useState({
+    show: false,
+    showConfirmButton: false,
+    type: "",
+  });
 
   useEffect(() => {
     setIsClient(true);
@@ -99,9 +104,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken(true);
+      console.log(idToken, result);
 
       setIdToken(idToken);
-      console.log(idToken, result);
+
+      setSwalProps({
+        show: true,
+        showConfirmButton: false,
+        type: "login",
+      });
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -157,6 +168,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         removeFromCart,
         addedCartIds,
         setAddedCartIds,
+        swalProps,
+        setSwalProps,
       }}
     >
       {children}

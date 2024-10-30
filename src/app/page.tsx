@@ -19,18 +19,11 @@ import AppLayout from "@/components/ecom/AppLayout";
 import { useRouter } from "next/navigation";
 import { useAppProvider } from "./Provider/AppProvider";
 import { useEffect, useRef } from "react";
+import BrandSection from "@/components/ecom/BrandSection";
+import SweetAlert2 from "react-sweetalert2";
 
 export default function Home() {
-  const handleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken(true); // Await the promise to get the ID token
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const { searchInputValue, setSearchInputValue } = useAppProvider();
+  const { searchInputValue, swalProps, setSwalProps } = useAppProvider();
 
   const getData = (url: string) => {
     return getFetchForEcom(url);
@@ -45,16 +38,16 @@ export default function Home() {
     getData
   );
 
-  const ref = useRef<null | HTMLButtonElement>(null);
-
-  useEffect(() => {
-    ref.current && ref.current.click();
-  }, []);
-
   return (
     <main className=" min-h-screen max-w-screen !overflow-x-hidden bg-secondary">
       <AppLayout>
         <Banner />
+        <Container>
+          <div className=" my-12 pt-12">
+            <BrandSection />
+          </div>
+        </Container>
+
         {error ? (
           <ErrorComponent refetch={() => {}} />
         ) : (
@@ -84,6 +77,28 @@ export default function Home() {
             )}
             <ProductCategories />
           </>
+        )}
+
+        {typeof window !== "undefined" && (
+          <SweetAlert2
+            timer={1500}
+            position="bottom-end"
+            icon="success"
+            iconColor="black"
+            customClass={{
+              popup: "colored-toast",
+            }}
+            toast={true}
+            {...swalProps}
+            didClose={() =>
+              setSwalProps({
+                ...swalProps,
+                show: false,
+              })
+            }
+          >
+            <p className=" capitalize">{swalProps.type} Successfully</p>
+          </SweetAlert2>
         )}
       </AppLayout>
     </main>

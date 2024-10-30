@@ -240,7 +240,7 @@ const UserInfoPage = () => {
         )}
       </form>
       <>
-        {isClient && (
+        {isClient && swalProps2.show && (
           <SweetAlert2
             didClose={() => {
               router.push("/");

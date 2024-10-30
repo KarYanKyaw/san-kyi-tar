@@ -106,7 +106,7 @@ const WishList = ({ closeRef }: any) => {
             .map((data: any, index: number) => (
               <div
                 onClick={() => {
-                  router.push(`/products/${data?.productId}`);
+                  router.push(`/products/wishlist/${data?.productId}`);
                 }}
                 className=" cursor-pointer"
                 key={index}

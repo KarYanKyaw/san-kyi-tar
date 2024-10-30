@@ -233,7 +233,7 @@ const CatListControlBar = ({
               )}
               {errors.image && (
                 <p className="text-sm text-red-500">
-                  {errors.image.message as never}
+                  {errors.image.message as string}
                 </p>
               )}
               <FormInput
@@ -244,7 +244,7 @@ const CatListControlBar = ({
               />
               {errors.name && (
                 <p className="text-sm text-red-500">
-                  {errors.name.message as never}
+                  {errors.name.message as string}
                 </p>
               )}
               <div className="space-y-1.5">
@@ -266,10 +266,11 @@ const CatListControlBar = ({
                 </Select>
                 {errors.productCategoryId && (
                   <p className="text-sm text-red-500">
-                    {errors.productCategoryId.message as never}
+                    {errors.productCategoryId.message as string}
                   </p>
                 )}
               </div>
+              
               <div className="flex justify-between">
                 <Button
                   ref={closeRef}

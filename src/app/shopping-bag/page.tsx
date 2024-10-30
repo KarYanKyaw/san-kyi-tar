@@ -1,6 +1,6 @@
 "use client";
 import { Container } from "@/components/ecom";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,6 +17,14 @@ import Image from "next/image";
 import OrderSummary from "@/components/ecom/OrderSummary";
 import { useRouter } from "next/navigation";
 import SweetAlert2 from "react-sweetalert2";
+import { Backend_URL, getFetchForEcom } from "@/lib/fetch";
+import useSWR from "swr";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const ShoppingBag = () => {
   const {
@@ -57,6 +65,17 @@ const ShoppingBag = () => {
     (pv: any, cv: any) => pv + cv.quantity * cv.priceAfterDiscount,
     0
   );
+
+  const getData = (url: string) => {
+    return getFetchForEcom(url);
+  };
+
+  const { data, isLoading, error } = useSWR(
+    `${Backend_URL}/landscape-banners`,
+    getData
+  );
+
+  console.log(data);
 
   return (
     <Container className=" pt-4">
@@ -231,6 +250,50 @@ const ShoppingBag = () => {
           />
         </div>
       </div>
+
+      <div className=" grid grid-cols-12 my-12 gap-4">
+        <div className=" col-span-full">
+          <Carousel
+            plugins={[
+              Autoplay({
+                delay: 1500,
+              }),
+            ]}
+            className="w-full"
+          >
+            <CarouselContent>
+              {error || isLoading ? (
+                <CarouselItem className=" h-[400px] lg:h-[600px] flex justify-center items-center lg:w-[1260px]  bg-neutral-600"></CarouselItem>
+              ) : (
+                <>
+                  {data?.data.map(({ id, desktopImage, mobileImage }: any) => (
+                    <CarouselItem
+                      key={id}
+                      className=" h-full w-full flex justify-center items-center "
+                    >
+                      <Image
+                        src={desktopImage}
+                        className=" hidden lg:block w-full object-contain h-[500px]"
+                        alt="banner photo"
+                        width={800}
+                        height={800}
+                      />
+                      <Image
+                        src={mobileImage}
+                        className=" lg:hidden block w-full object-contain h-full"
+                        alt="banner photo"
+                        width={800}
+                        height={800}
+                      />
+                    </CarouselItem>
+                  ))}
+                </>
+              )}
+            </CarouselContent>
+          </Carousel>
+        </div>
+      </div>
+
       {isClient && (
         <SweetAlert2
           customClass={{

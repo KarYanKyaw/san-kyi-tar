@@ -12,6 +12,20 @@ import Cart from "./Cart";
 import Wishlist from "./Wishlist";
 import useSWR from "swr";
 import { Backend_URL } from "@/lib/fetch";
+import text from "../../../public/text.png";
+import logo from "../../../public/logo.png";
+import Image from "next/image";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+
+type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 const Navbar = () => {
   const router = useRouter();
@@ -19,11 +33,12 @@ const Navbar = () => {
   const closeWishListRef = useRef<HTMLButtonElement | null>(null);
   const { searchInputValue, setSearchInputValue } = useAppProvider();
   const [debouncedValue, setDebouncedValue] = useState(searchInputValue);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearchInputValue(debouncedValue);
-    }, 1300); // delay in milliseconds
+    }, 800); // delay in milliseconds
 
     return () => {
       clearTimeout(handler);
@@ -70,33 +85,52 @@ const Navbar = () => {
     errorRetryCount: 0,
   });
 
+  const searchRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (debouncedValue.length > 3) {
+      setOpen(true);
+    }
+
+    return () => {
+      setOpen(false);
+    };
+  }, [debouncedValue]);
+
   return (
-    <div className=" select-none">
-      {/* <div className=" w-full z-[50] h-[40px] flex justify-center items-center border-0 fixed bg-[#333333]">
-        <div
-          onClick={() => {
-            handleLogin();
-          }}
-          className=" cursor-pointer text-xs flex gap-1 items-center text-neutral-50"
-        >
-          <span className=" !my-3">
-            <Gift size={18} />
-          </span>
-          <span>Sign up for exclusive offers!</span>
-        </div>
-      </div> */}
-      <div className="z-[50] h-[80px] fixed flex justify-center items-center bg-secondary w-full border-b-2 border-input">
-        <Container className="flex justify-center flex-col h-full">
+    <div className=" overflow-hidden select-none">
+      <div className="z-[50] h-[80px]  overflow-hidden fixed flex justify-center items-center bg-secondary w-full border-b-2 border-input">
+        <Container className="flex justify-center  overflow-hidden flex-col h-full">
           <div className="grid grid-cols-2 lg:grid-cols-3 items-center gap-3">
-            <p
+            <div
               onClick={() => {
                 setSearchInputValue("");
                 router.push("/");
               }}
-              className="lg:text-xl font- text-lg cursor-pointer font-semibold"
+              className="lg:text-xl flex items-center justify-start  cursor-pointer font-semibold"
             >
-              Boss Nation
-            </p>
+              <Image
+                className="lg:h-[100px] w-[80px] h-[50px] object-left object-contain"
+                src={logo}
+                alt="logo"
+              />
+
+              <div className=" flex flex-col lg:-ms-0 -ms-6 justify-center items-start">
+                <p className=" font-medium mb-0 pb-0 lg:leading-6 lg:text-xl text-[10px] uppercase font-serif">
+                  Boss Nation
+                </p>
+                <p className=" font-medium lg:tracking-wide uppercase text-[10px] lg:text-xs font-serif">
+                  Authentic Fashion
+                </p>
+              </div>
+              {/* 
+              <Image
+                className="h-[80px] object-left -ms-7 object-contain"
+                src={text}
+                alt="logo"
+              /> */}
+            </div>
+
             {/* nav links */}
             <div className="hidden lg:flex justify-around">
               <p
@@ -128,6 +162,7 @@ const Navbar = () => {
               >
                 Women
               </p>
+
               <p
                 onClick={() => {
                   setSearchInputValue("");
@@ -142,19 +177,35 @@ const Navbar = () => {
             {/* controls */}
             <div className="flex justify-end items-center">
               <div className="border-neutral-400 border w-[200px] rounded hidden lg:flex items-center">
-                <Button
-                  className="!h-8 border-0 -me-2 !p-0 !px-2 rounded-e-0"
-                  variant="ghost"
-                >
-                  <Search size={20} color="#A3a3a3" />
-                </Button>
+                {/* <DropdownMenu open={open} modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      className="!h-8 border-0 -me-2 !p-0 !px-2 rounded-e-0"
+                      variant="ghost"
+                    >
+                      <Search size={20} color="#A3a3a3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                    onInteractOutside={() => setOpen(false)}
+                    className=" ms-[192px] w-56"
+                  >
+                    <DropdownMenuCheckboxItem>
+                      Status Bar
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu> */}
+
                 <Input
                   value={debouncedValue}
                   onChange={handleInputChange}
+                  ref={searchRef}
                   placeholder="Search..."
                   className="w-[80%] border-none h-4 bg-transparent rounded-none focus:outline-none focus:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
+
               <div className="block lg:hidden">
                 <ControlSheet
                   buttonName={<Search />}
@@ -186,6 +237,7 @@ const Navbar = () => {
                   </form>
                 </ControlSheet>
               </div>
+
               <div>
                 <ControlSheet
                   closeRef={closeRef}
@@ -244,7 +296,9 @@ const Navbar = () => {
                     >
                       New In
                     </p>
+
                     <hr className="border-1.5 border-input" />
+
                     <p
                       onClick={() => {
                         setSearchInputValue("");

@@ -115,19 +115,16 @@ input[type="number"]::-webkit-inner-spin-button {
   animation-direction: reverse;
 }
 
-/* Style the scrollbar track */
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1; /* or any color you prefer */
+/* ::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
 }
 
-/* Style the scrollbar itself */
 ::-webkit-scrollbar {
-  width: 10px; /* width of the scrollbar */
-  background-color: #f1f1f1; /* color of the scrollbar */
+  width: 10px; 
+  background-color: #f1f1f1; 
 }
 
-/* Style the scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-  background-color: #888; /* color of the scrollbar thumb */
-  border-radius: 5px; /* roundness of the thumb */
-}
+  background-color: #888;
+  border-radius: 5px; 
+} */

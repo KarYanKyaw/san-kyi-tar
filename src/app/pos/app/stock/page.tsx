@@ -10,6 +10,8 @@ import useSWR from "swr";
 import StockReportChart from "@/components/pos/stock/StockReportChart";
 import StockTable from "@/components/pos/stock/StockTable";
 import { PaginationComponent } from "@/components/pos/inventory";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 const StockPage = () => {
   const router = useRouter();
@@ -107,6 +109,23 @@ const StockPage = () => {
     setSingleId(id);
   };
 
+  const [getNow, setGetNow] = useState(false);
+
+  const {
+    data: customerExcel,
+    error: excelError,
+    isLoading: customerExcelLoading,
+  } = useSWR(getNow ? `${Backend_URL}/stock-reports/export` : null, getStockReport);
+
+  const ref = React.useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (customerExcel) {
+      ref.current && (ref.current.href = customerExcel?.url);
+      ref.current?.click();
+    }
+  }, [customerExcel]);
+
   return (
     <Container>
       <div className=" space-y-4">
@@ -114,6 +133,20 @@ const StockPage = () => {
         {!isLoading && (
           <>
             <StockReportChart isLoading={isLoading} data={data} />
+            <div className=" flex justify-between items-center">
+              <p className=" text-lg font-semibold">Stock</p>
+              <Button
+                disabled={customerExcelLoading}
+                variant={"outline"}
+                onClick={async () => {
+                  await setGetNow(false);
+                  setGetNow(true);
+                }}
+              >
+                <Download /> <span className="ms-1">Export Stocks</span>
+              </Button>
+              <a href="" ref={ref} className=" hidden"></a>
+            </div>
             <StockTable data={data?.products} />
             <PaginationComponent
               goToFirstPage={goToFirstPage}

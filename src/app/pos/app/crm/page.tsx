@@ -10,9 +10,10 @@ import TableSkeletonLoader from "@/components/TableSkeletonLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Backend_URL, getFetch } from "@/lib/fetch";
-import { PlusCircle } from "lucide-react";
+import axios from "axios";
+import { Download, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 
 const CRM = () => {
@@ -22,6 +23,7 @@ const CRM = () => {
   const [inputValue, setInputValue] = useState("");
   const [filterType, setFilterType] = useState("createdAt");
   const [sortBy, setSortBy] = useState("desc");
+  const [getNow, setGetNow] = useState(false);
 
   const filterTable = (value: string) => {
     setSortBy(sortBy === "asc" ? "desc" : "asc");
@@ -69,6 +71,22 @@ const CRM = () => {
 
   const startIndex = (currentPage - 1) * 10;
 
+  const {
+    data: customerExcel,
+    error: excelError,
+    isLoading: customerExcelLoading,
+    mutate,
+  } = useSWR(getNow ? `${Backend_URL}/customers/export` : null, getData);
+
+  const ref = React.useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (customerExcel) {
+      ref.current && (ref.current.href = customerExcel?.url);
+      ref.current?.click();
+    }
+  }, [customerExcel]);
+
   return (
     <Container>
       <div className=" space-y-4">
@@ -77,6 +95,7 @@ const CRM = () => {
           path="Customer"
           currentPage="Customer List"
         />
+
         {!isLoading && (
           <div className=" space-y-4">
             <CustomerAnalysisBox data={data?.analysis} />
@@ -88,10 +107,29 @@ const CRM = () => {
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Search...."
                 />
-                <Button onClick={() => router.push("/pos/app/add-customer")}>
-                  <PlusCircle /> <span className="ms-1">Add Customer</span>
-                </Button>
+
+                <div className=" flex gap-3 ">
+                  <Button
+                    disabled={customerExcelLoading}
+                    variant={"outline"}
+                    onClick={async () => {
+                      await setGetNow(false);
+                      setGetNow(true);
+                    }}
+                  >
+                    <Download /> <span className="ms-1">Export Excel</span>
+                  </Button>
+                  <a href="" ref={ref} className=" hidden"></a>
+
+                  <Button
+                    disabled={customerExcelLoading}
+                    onClick={() => router.push("/pos/app/add-customer")}
+                  >
+                    <PlusCircle /> <span className="ms-1">Add Customer</span>
+                  </Button>
+                </div>
               </div>
+
               {error ? (
                 <ErrorComponent refetch={() => {}} />
               ) : (

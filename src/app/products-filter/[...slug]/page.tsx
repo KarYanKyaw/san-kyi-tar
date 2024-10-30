@@ -11,11 +11,12 @@ import ProductSkeleton from "@/components/ecom/ProductSkeleton";
 import ErrorComponent from "@/components/ErrorComponent";
 import { Backend_URL, getFetchForEcom } from "@/lib/fetch";
 import { SlidersHorizontal } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useRef, useState } from "react";
 import useSWR from "swr";
 import ControlSheet from "@/components/ecom/ControlSheet";
 import FilterForm from "@/components/ecom/FilterForm";
+import { useAppProvider } from "@/app/Provider/AppProvider";
 import {
   Select,
   SelectContent,
@@ -24,144 +25,97 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type Filter = {
-  brands: [];
-  category: [];
-  fitting: [];
-  genders: [];
-  type: [];
-  size: [];
-};
-
 const GeneralizedPage = ({ params }: { params: any }) => {
-  const [sorting, setSorting] = useState("");
-  const closeRef = useRef<HTMLButtonElement | null>(null);
-  const router = useRouter();
+  const { searchInputValue, setSearchInputValue } = useAppProvider();
 
-  // Decode the entire slug
-  const decodedString = decodeURIComponent(params.slug[0]);
-  const slugSegments = params.slug.slice(1); // Extract all segments after the first
-
-  // Format the result by joining with commas and replacing encoded characters
-  const formattedResult = slugSegments
-    .join(",")
-    .replace(/%2C/g, ",") // Replace %2C with commas
-    .replace(/%20/g, " "); // Replace %20 with spaces
-
-  // Fetch data using SWR
-  const { data, isLoading, error } = useSWR(
-    `${Backend_URL}/ecommerce-Products/riddle?${decodedString}${
-      sorting ? `&orderBy=salePrice&orderDirection=${sorting}` : ""
-    }&limit=${12}`, // include currentPage in the fetch key
-    getFetchForEcom
-  );
-
-  // Remove the page parameter from the query string
-  const newString = decodedString.replace(/&page=\d+/, "");
-
-  const [currentPage, setCurrentPage] = useState(
-    Number(new URLSearchParams(decodedString).get("page"))
-  );
-
-  // Handle pagination
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page); // set the current page in state
-
-    const newUrl = `/products-filter/${newString}&page=${page}${
-      sorting ? `&orderBy=salePrice&orderDirection=${sorting}` : ""
-    }/${formattedResult}`;
-    router.push(newUrl); // use router.push to trigger a re-render
+  const getData = (url: string) => {
+    return getFetchForEcom(url);
   };
 
-  const [amount, setAmount] = useState(0);
-  const [filters, setFilters] = useState<Filter[]>([]);
+  const [sorting, setSorting] = useState("");
 
-  useEffect(() => {
-    const storedFilters = localStorage.getItem("filters");
-    if (storedFilters) {
-      const parsedFilters = JSON.parse(storedFilters);
-      setFilters([parsedFilters]);
-    }
-  }, [typeof window !== undefined && localStorage.getItem("filters")]);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
 
-  useEffect(() => {
-    if (filters.length > 0) {
-      setAmount(
-        [
-          ...filters[0].brands,
-          ...filters[0].type,
-          ...filters[0].category,
-          ...filters[0].fitting,
-          ...filters[0].genders,
-        ].length
-      );
-    }
-  }, [filters]);
+  const router = useRouter();
+
+  const decodedString = decodeURIComponent(params.slug[0]);
+
+  const [currentPage, setCurrentPage] = useState(Number(params.slug[1]));
+
+  const newString = decodedString.replace(/&page=\d+/, "");
+
+  const { data, isLoading, error } = useSWR(
+    searchInputValue !== ""
+      ? `${Backend_URL}/ecommerce-Products/riddle?${decodedString}&search=${searchInputValue}&page=${params.slug[1]}`
+      : `${Backend_URL}/ecommerce-Products/riddle?${decodedString}&page=${
+          params.slug[1]
+        }${
+          sorting ? `&orderBy=salePrice&orderDirection=${sorting}` : ""
+        }&limit=${12}`,
+    getData
+  );
 
   return (
-    <div className="py-8 space-y-4">
+    <div className=" py-8 space-y-4">
       <Container>
-        <BreadCrumbComponent
-          path="Home"
-          currentPage={
-            slugSegments.length > 0 ? formattedResult : "Filtered Products"
-          }
-        />
+        {decodeURIComponent(params.slug[2]) !== "undefined" && (
+          <BreadCrumbComponent
+            path="Home"
+            currentPage={decodeURIComponent(params.slug[2])}
+          />
+        )}
         <Heading
-          header={
-            slugSegments.length > 0 ? formattedResult : "Filtered Products"
-          }
-          desc="The latest and greatest products to enhance his lifestyle"
+          header={`FOUND ${data?.total || 0} ${data?.total > 1 ? "Products" : "Product"}`}
+          desc={`the latest and greatest products to enhance your lifestyle!`}
         />
       </Container>
-
-      <div className="py-3 border ">
+      <div className=" py-3 border">
         <Container>
           <div className="flex justify-end items-center">
-            <div className="col-span-full space-y-1.5">
-              <Select
-                onValueChange={(e) => {
-                  setSorting(e);
-                }}
+            <div className=" flex items-center justify-end gap-3">
+              <div className="col-span-full space-y-1.5">
+                <Select
+                  onValueChange={(e) => {
+                    setSorting(e);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort Price" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asc">Low to high</SelectItem>
+                    <SelectItem value="desc">High to low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <ControlSheet
+                closeRef={closeRef}
+                buttonName={
+                  <>
+                    <SlidersHorizontal size={18} />{" "}
+                    <span className=" ms-1">Filter & Sort</span>
+                  </>
+                }
+                title="Filter"
+                desc="Refine Your Style with Our Curated Fashion Filters"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="asc">Low to high</SelectItem>
-                  <SelectItem value="desc">High to low</SelectItem>
-                </SelectContent>
-              </Select>
+                <FilterForm closeRef={closeRef} />
+              </ControlSheet>
             </div>
-            <ControlSheet
-              closeRef={closeRef}
-              buttonName={
-                <>
-                  <SlidersHorizontal size={18} />{" "}
-                  <span className="ms-1">Filter & Sort</span>
-                  {amount > 0 && <span className=" ms-1">({amount})</span>}
-                </>
-              }
-              title="Filter"
-              desc="Refine Your Style with Our Curated Fashion Filters"
-            >
-              <FilterForm closeRef={closeRef} />
-            </ControlSheet>
           </div>
         </Container>
       </div>
-
       {error ? (
         <ErrorComponent refetch={() => {}} />
       ) : (
         <>
           <Container>
             {isLoading ? (
-              <div className="grid grid-cols-2 gap-x-3 gap-y-8 lg:grid-cols-4">
+              <div className=" grid grid-cols-2 gap-x-3 gap-y-8 lg:grid-cols-4">
                 <ProductSkeleton />
               </div>
             ) : (
-              <Products data={data?.data} isLoading={isLoading} />
+              <Products data={data.data} isLoading={isLoading} />
             )}
           </Container>
           <div className=" py-3 border">
@@ -170,10 +124,14 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                 <div>
                   <PaginationEcom
                     currentPage={currentPage}
-                    totalPages={data?.totalPages || 1}
+                    totalPages={data?.totalPages}
                     onPageChange={(page) => {
-                      handlePageChange(page);
-                      console.log(page);
+                      setCurrentPage(page);
+                      router.replace(
+                        `/products-filter/${decodedString}/${page}/${decodeURIComponent(
+                          params.slug[2]
+                        )}`
+                      );
                     }}
                   />
                 </div>

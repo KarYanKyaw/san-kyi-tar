@@ -90,7 +90,7 @@ const ProductCategories = () => {
                       >
                         <Image
                           src={media.url}
-                          className=" h-[500px] w-full lg:h-[600px] object-cover object-top"
+                          className=" h-[500px] lg:h-[500px] object-cover object-top"
                           alt=""
                           width={300}
                           height={600}

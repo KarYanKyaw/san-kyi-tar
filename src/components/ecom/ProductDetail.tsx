@@ -32,6 +32,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import CommentSection from "./CommentSection";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../ui/breadcrumb";
+import { useRouter } from "next/navigation";
 
 type orderItem = {
   itemId: number;
@@ -51,7 +60,13 @@ type orderItem = {
   productId: number;
 };
 
-const ProductDetail = ({ id }: { id: string }) => {
+const ProductDetail = ({
+  id,
+  pathSegment,
+}: {
+  id: string;
+  pathSegment: string;
+}) => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
   const [availableSizes, setAvailableSizes] = useState<any[]>([]);
@@ -246,7 +261,6 @@ const ProductDetail = ({ id }: { id: string }) => {
     if (!response.ok) {
       throw new Error(data.message || "An error occurred");
     }
-
     return data;
   };
 
@@ -290,10 +304,21 @@ const ProductDetail = ({ id }: { id: string }) => {
       };
 
       const response = await fetch(url, options);
-      const data = await response.json();
 
+      // Check if the response has JSON content
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        // If it's not JSON, treat it as text
+        data = await response.text();
+      }
+
+      // Check if response was successful
       if (!response.ok) {
-        throw new Error(data.message || "An error occurred");
+        const errorMessage = data.message || data || "An error occurred";
+        throw new Error(errorMessage);
       }
 
       return data;
@@ -309,11 +334,13 @@ const ProductDetail = ({ id }: { id: string }) => {
   );
 
   const { data: dealData, isLoading: isDealLoading } = useSWR(
-    `${Backend_URL}/ecommerce-Products/riddle/${
-      productData?.category
-    }?limit=${4}`,
+    `${Backend_URL}/ecommerce-Products/riddle?sortCategory=${
+      productData?.productCategory?.id
+    }?limit=${12}`,
     getData
   );
+
+  const router = useRouter();
 
   return (
     <>
@@ -396,10 +423,11 @@ const ProductDetail = ({ id }: { id: string }) => {
         </Container>
       ) : (
         <Container>
-          <div>
+          <div className=" space-y-5">
             {addError && (
               <p className=" text-red-500 text-sm">{addError.message}</p>
             )}
+
             <div className="grid lg:grid-cols-12 gap-5 lg:gap-0 h-auto">
               <div className="overflow-auto w-full lg:col-span-6">
                 <div className=" flex gap-3 lg:flex-col w-full lg:h-[860px] overflow-auto h-[600px]">
@@ -431,10 +459,43 @@ const ProductDetail = ({ id }: { id: string }) => {
                     style={{ alignContent: "baseline" }}
                     className="flex justify-between "
                   >
-                    <BreadCrumbComponent
-                      path="Home"
-                      currentPage="Best Sellers"
-                    />
+                    <div className=" flex justify-between mb-3 items-center">
+                      <div className="space-y-2">
+                        <Breadcrumb>
+                          <BreadcrumbList>
+                            <BreadcrumbItem>
+                              <BreadcrumbPage
+                                onClick={() => router.push("/")}
+                                className=" font-semibold text-sm lg:text-base cursor-pointer"
+                              >
+                                Home
+                              </BreadcrumbPage>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator>|</BreadcrumbSeparator>
+                            <BreadcrumbItem>
+                              <BreadcrumbPage
+                                onClick={() => {
+                                  router.back();
+                                }}
+                                className=" capitalize text-primary/80 text-sm lg:text-base cursor-pointer"
+                              >
+                                {pathSegment == "filter-products" ||
+                                pathSegment == "wishlist"
+                                  ? `${productData?.productCategory.name}`
+                                  : decodeURIComponent(pathSegment)}
+                              </BreadcrumbPage>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator>|</BreadcrumbSeparator>
+
+                            <BreadcrumbItem>
+                              <BreadcrumbPage className=" capitalize text-primary/80 text-sm lg:text-base cursor-pointer">
+                                {productData?.name}
+                              </BreadcrumbPage>
+                            </BreadcrumbItem>
+                          </BreadcrumbList>
+                        </Breadcrumb>
+                      </div>
+                    </div>
                     <p className=" font-bold text-[20px] lg:text-[24px]">
                       {productData?.productBrand}
                     </p>
@@ -477,17 +538,17 @@ const ProductDetail = ({ id }: { id: string }) => {
                     ) : (
                       <p className="text-lg ">
                         {new Intl.NumberFormat("ja-JP").format(
-                          productData.salePrice
+                          productData?.salePrice
                         )}{" "}
                         MMK
                       </p>
                     )}
                     <div className=" block">
-                      <Badge>{productData.productFitting}</Badge>
+                      <Badge>{productData?.productFitting}</Badge>
                     </div>
                   </div>
 
-                  {productData?.productVariants.length > 0 && (
+                  {productData?.productVariants?.length > 0 && (
                     <>
                       <div>
                         <p className="text-neutral-500 mb-2 text-xs lg:text-sm uppercase">
@@ -670,6 +731,19 @@ const ProductDetail = ({ id }: { id: string }) => {
                 </div>
               </div>
             </div>
+
+            <Container>
+              <CommentSection
+                isUser={isClient ? !!localStorage.getItem("userId") : false}
+                openRef={alertRef}
+                postData={postData}
+                productId={productData?.id}
+                deleteData={deleteData}
+                customerId={
+                  isClient ? Number(localStorage.getItem("userId")) : undefined
+                }
+              />
+            </Container>
 
             {isClient && (
               <SweetAlert2

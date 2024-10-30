@@ -145,7 +145,6 @@ export default function ProductBrandsPage() {
     <Container>
       <div className="space-y-3">
         <NavHeader parentPage="Brand" path="Product" currentPage="Brand" />
-        {}
         <div className=" space-y-3">
           <BrandControlBar
             isSelected={idsToDelete.length > 0}

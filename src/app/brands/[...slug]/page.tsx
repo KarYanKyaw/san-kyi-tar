@@ -1,5 +1,4 @@
 "use client";
-
 import { BreadCrumbComponent, Container, Heading } from "@/components/ecom";
 import PaginationEcom from "@/components/ecom/PaginationEcom";
 import ProductSkeleton from "@/components/ecom/ProductSkeleton";
@@ -34,7 +33,7 @@ const GeneralizedPage = ({ params }: { params: any }) => {
 
   const { searchInputValue, setSearchInputValue } = useAppProvider();
 
-  const getData = (url: string) => {
+  const getData = (url: string): any => {
     return getFetchForEcom(url);
   };
 
@@ -46,9 +45,8 @@ const GeneralizedPage = ({ params }: { params: any }) => {
 
   const { data, isLoading, error } = useSWR(
     searchInputValue !== ""
-      ? `${Backend_URL}/ecommerce-Products/riddle/${params.slug[0]}?search=${searchInputValue}&page=${page}`
-      : `${Backend_URL}/ecommerce-Products/riddle/${
-          params.slug[0]
+      ? `${Backend_URL}/ecommerce-Products/riddle?sortBrand=${params.slug[1]}?search=${searchInputValue}`
+      : `${Backend_URL}/ecommerce-Products/riddle?sortBrand=${params.slug[1]}
         }?page=${page}${
           sorting ? `&orderBy=salePrice&orderDirection=${sorting}` : ""
         }&limit=${12}`,
@@ -69,14 +67,14 @@ const GeneralizedPage = ({ params }: { params: any }) => {
         <div className=" flex flex-col gap-[15px]">
           <BreadCrumbComponent
             path="Home"
-            currentPage={params.slug[0] == "new-in" ? "New In" : params.slug[0]}
+            currentPage={decodeURIComponent(params.slug[0])}
           />
 
           <Heading
-            header={`New products for ${
-              params.slug[0] == "new-in" ? "you" : params.slug[0]
-            }`}
-            desc={`the latest and greatest products ${params.slug[0]} to enhance his lifestyle`}
+            header={`Products of ${decodeURIComponent(params.slug[0])}`}
+            desc={`${decodeURIComponent(
+              params.slug[0]
+            )} products to enhance his lifestyle`}
           />
         </div>
       </Container>
@@ -126,121 +124,17 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                 <ProductSkeleton />
               </div>
             ) : (
-              <>
-                {currentPage == 1 ? (
-                  <div className="grid grid-cols-12 gap-x-[20px] gap-y-12 lg:gap-y-0 lg:grid-rows-2">
-                    {data?.data.length == 0 ? (
-                      <div className="h-[500px] text-sm text-red-500 col-span-full text-center">
-                        Thank you for your interest. Unfortunately, this product
-                        is currently unavailable.
-                      </div>
-                    ) : (
-                      <>
-                        {/* First 4 products in one row */}
-                        {data?.data
-                          .slice(0, 4)
-                          .map(
-                            ({
-                              name,
-                              gender,
-                              productBrand,
-                              salePrice,
-                              id,
-                              medias,
-                              productCode,
-                              discountPrice,
-                              productVariants,
-                            }: any) => (
-                              <div
-                                className="col-span-6 lg:col-span-3 row-span-1"
-                                key={id}
-                              >
-                                <ProductCard
-                                  id={id}
-                                  name={name}
-                                  productBrand={productBrand}
-                                  salePrice={salePrice}
-                                  medias={medias}
-                                  discountPrice={discountPrice}
-                                  productCode={productCode}
-                                  productVariants={productVariants}
-                                />
-                              </div>
-                            )
-                          )}
-
-                        {/* Next 2 products in the second row */}
-                        {data?.data
-                          .slice(5, 8)
-                          .map(
-                            ({
-                              name,
-                              gender,
-                              productBrand,
-                              salePrice,
-                              id,
-                              medias,
-                              productCode,
-                              discountPrice,
-                              productVariants,
-                            }: any) => (
-                              <div
-                                className="col-span-6 lg:col-span-3 row-span-1"
-                                key={id}
-                              >
-                                <ProductCard
-                                  id={id}
-                                  name={name}
-                                  productBrand={productBrand}
-                                  salePrice={salePrice}
-                                  medias={medias}
-                                  discountPrice={discountPrice}
-                                  productCode={productCode}
-                                  productVariants={productVariants}
-                                />
-                              </div>
-                            )
-                          )}
-                      </>
-                    )}
-
-                    {/* ad banner */}
-
-                    <div className="col-span-12 lg:col-span-3 row-span-1">
-                      <Carousel
-                        plugins={[
-                          Autoplay({
-                            delay: 1500,
-                          }),
-                        ]}
-                        className="w-full"
-                      >
-                        <CarouselContent>
-                          {bannerLoading || bannerErrors ? (
-                            <CarouselItem className="  flex justify-center items-center bg-blue-600"></CarouselItem>
-                          ) : (
-                            <>
-                              {bannerData?.data.map(({ id, url }: any) => (
-                                <CarouselContent key={id}>
-                                  <CarouselItem className=" h-full w-full flex justify-center items-center ">
-                                    <Image
-                                      src={url}
-                                      className=" w-full object-cover h-full"
-                                      alt="banner photo"
-                                      width={800}
-                                      height={800}
-                                    />
-                                  </CarouselItem>
-                                </CarouselContent>
-                              ))}
-                            </>
-                          )}
-                        </CarouselContent>
-                      </Carousel>
-                    </div>
-
+              <div className="grid grid-cols-12 gap-x-[20px] gap-y-12 lg:gap-y-0 lg:grid-rows-2">
+                {data?.data.length == 0 ? (
+                  <div className="h-[500px] text-sm text-red-500 col-span-full text-center">
+                    Thank you for your interest. Unfortunately, this product is
+                    currently unavailable.
+                  </div>
+                ) : (
+                  <>
+                    {/* First 4 products in one row */}
                     {data?.data
-                      .slice(8, 12)
+                      .slice(0, 4)
                       .map(
                         ({
                           name,
@@ -270,11 +164,11 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                           </div>
                         )
                       )}
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-12 gap-x-[20px] gap-y-12 lg:gap-y-0 lg:grid-rows-2">
-                      {data?.data.map(
+
+                    {/* Next 2 products in the second row */}
+                    {data?.data
+                      .slice(5, 8)
+                      .map(
                         ({
                           name,
                           gender,
@@ -287,7 +181,7 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                           productVariants,
                         }: any) => (
                           <div
-                            className="col-span-6 lg:col-span-3 row-span-1"
+                            className="col-span-6  lg:col-span-3 row-span-1"
                             key={id}
                           >
                             <ProductCard
@@ -303,10 +197,76 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                           </div>
                         )
                       )}
-                    </div>
                   </>
                 )}
-              </>
+
+                {/* ad banner */}
+                <div className="col-span-12 lg:col-span-3 bg-blue-500 row-span-1">
+                  <Carousel
+                    plugins={[
+                      Autoplay({
+                        delay: 1500,
+                      }),
+                    ]}
+                    className="w-full"
+                  >
+                    <CarouselContent>
+                      {bannerLoading || bannerErrors ? (
+                        <CarouselItem className="  flex justify-center items-center bg-blue-600"></CarouselItem>
+                      ) : (
+                        <>
+                          {bannerData?.data.map(({ id, url }: any) => (
+                            <CarouselItem
+                              key={id}
+                              className=" h-full w-full flex justify-center items-center "
+                            >
+                              <Image
+                                src={url}
+                                className=" w-full object-cover bg-blue-700 h-full"
+                                alt="banner photo"
+                                width={800}
+                                height={800}
+                              />
+                            </CarouselItem>
+                          ))}
+                        </>
+                      )}
+                    </CarouselContent>
+                  </Carousel>
+                </div>
+
+                {data?.data
+                  .slice(8, 12)
+                  .map(
+                    ({
+                      name,
+                      gender,
+                      productBrand,
+                      salePrice,
+                      id,
+                      medias,
+                      productCode,
+                      discountPrice,
+                      productVariants,
+                    }: any) => (
+                      <div
+                        className="col-span-6 lg:col-span-3 row-span-1"
+                        key={id}
+                      >
+                        <ProductCard
+                          id={id}
+                          name={name}
+                          productBrand={productBrand}
+                          salePrice={salePrice}
+                          medias={medias}
+                          discountPrice={discountPrice}
+                          productCode={productCode}
+                          productVariants={productVariants}
+                        />
+                      </div>
+                    )
+                  )}
+              </div>
             )}
           </Container>
           <div className=" py-3 border">
@@ -318,7 +278,9 @@ const GeneralizedPage = ({ params }: { params: any }) => {
                     totalPages={data?.totalPages}
                     onPageChange={(page) => {
                       setCurrentPage(page);
-                      router.replace(`/${params.slug[0]}?page=${page}`);
+                      router.replace(
+                        `/${decodeURIComponent(params.slug[0])}?page=${page}`
+                      );
                     }}
                   />
                 </div>

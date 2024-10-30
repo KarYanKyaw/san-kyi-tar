@@ -14,7 +14,7 @@ const CartItem = ({ data }: any) => {
   return (
     <div
       onClick={() => {
-        router.push(`/products/${data?.productId}`);
+        router.push(`/products/wishlist/${data?.productId}`);
       }}
       className=" cursor-pointer"
     >

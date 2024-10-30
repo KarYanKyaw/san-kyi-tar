@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Heart, Plus } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
@@ -31,6 +31,7 @@ const ProductCard = ({
   discountPrice,
   productCode,
   productVariants,
+  productCategory,
 }: {
   id: number;
   name: string;
@@ -40,8 +41,41 @@ const ProductCard = ({
   discountPrice?: number;
   productCode: any;
   productVariants: boolean;
+  productCategory?: string;
 }) => {
   const router = useRouter();
+  const app = usePathname();
+
+  const handleClick = () => {
+    let pathSegment = "";
+
+    if (app.includes("categories")) {
+      const cleanPath = app.split("?")[0];
+      const parts = cleanPath.split("/");
+
+      // Ensure there's a valid part to use
+
+      pathSegment = parts[2];
+    } else if (app.includes("brands")) {
+      const match = app.match(/\/brands\/(.*?)(\/|$)/);
+
+      // Ensure match is found and valid
+      if (match && match[1]) {
+        pathSegment = match[1];
+      }
+    } else if (app.includes("new-in") || app === "/") {
+      pathSegment = "new-in";
+    } else if (app.includes("women")) {
+      pathSegment = "women";
+    } else if (app.includes("men")) {
+      pathSegment = "men";
+    } else if (app.includes("unisex")) {
+      pathSegment = "unisex";
+    } else if (app.includes("products-filter")) {
+      pathSegment = "filter-products";
+    }
+    router.push(`/products/${pathSegment}/${id}`);
+  };
 
   const { handleLogin } = useAppProvider();
 
@@ -165,7 +199,6 @@ const ProductCard = ({
       throw new Error(error.message || "An error occurred");
     }
   };
-
   const { trigger: deleteItem } = useSWRMutation(
     deleteId !== null ? `${Backend_URL}/wishlist/${deleteId}` : null,
     deleteData
@@ -173,16 +206,16 @@ const ProductCard = ({
 
   return (
     <div
-      onClick={() => router.push(`/products/${id}`)}
+      onClick={() => handleClick()}
       key={id}
-      className=" cursor-pointer"
+      className=" lg:mb-12 cursor-pointer"
     >
       <div className=" relative">
         <Image
           src={medias[0]?.url}
           width={500}
           height={500}
-          className=" h-[500px] lg:h-[600px] object-cover object-top"
+          className=" h-[300px] lg:h-[500px] object-cover object-top"
           alt=""
         />
         <div className=" absolute top-3 right-3">

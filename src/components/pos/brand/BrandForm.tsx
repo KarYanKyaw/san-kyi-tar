@@ -149,7 +149,7 @@ const BrandForm: React.FC<FormProps> = ({
 
           {errors.brand && (
             <p className="text-red-600 text-xs">
-              {errors.brand.message as never}
+              {errors.brand.message as string}
             </p>
           )}
 

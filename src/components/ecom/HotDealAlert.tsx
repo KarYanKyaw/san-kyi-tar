@@ -40,7 +40,7 @@ const HotDealAlert = ({ data, isLoading }: any) => {
           </Button>
         </div>
       </div>
-      <div className="">
+      <div>
         <div className="flex justify-center object-contain items-center">
           <Carousel
             plugins={[
@@ -52,7 +52,7 @@ const HotDealAlert = ({ data, isLoading }: any) => {
           >
             <CarouselContent>
               {isLoading ? (
-                <CarouselItem className="">
+                <CarouselItem className="cursor-pointer basis-[50%] lg:basis-[25%]">
                   <div className=" py-12"></div>
                 </CarouselItem>
               ) : (
@@ -71,7 +71,7 @@ const HotDealAlert = ({ data, isLoading }: any) => {
                   ) => (
                     <CarouselItem
                       key={index}
-                      className=" basis-2/3 lg:basis-1/3"
+                      className="cursor-pointer basis-[50%] lg:basis-[25%]"
                     >
                       <ProductCard
                         id={id}

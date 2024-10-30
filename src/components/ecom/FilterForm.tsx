@@ -93,17 +93,38 @@ const FilterForm = ({ closeRef }: any) => {
         : [...prev, value]
     );
   };
-
   const handleCategoryChange = (value: string | number) => {
-    setCategory((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value]
+    // Update the selected types
+    const updatedCategory = category.includes(value)
+      ? category.filter((item) => item !== value)
+      : [...category, value];
+
+    setCategory(updatedCategory);
+
+    // If no category is selected, log all product fittings; otherwise, log the selected ones
+    const selectedCategories =
+      updatedCategory.length === 0
+        ? categoryData.flatMap((el: any) => el.productFittings) // Log all product fittings if no category is selected
+        : categoryData
+            .filter((el: any) => updatedCategory.includes(el.id))
+            .flatMap((el: any) => el.productFittings);
+
+    // Convert Set to an array before setting the state
+    setFittingData(
+      selectedCategories.filter(
+        (item, index, self) => index === self.findIndex((t) => t.id === item.id)
+      )
     );
+    setFitting([]);
   };
 
   const handleFittingChange = (value: string | number) => {
-    setFitting([value]);
+    const updatedFitting = fitting.includes(value)
+      ? fitting.filter((item) => item !== value)
+      : [...fitting, value];
+
+    setFitting(updatedFitting);
+    setSize([]);
   };
 
   const handleTypeChange = (value: string | number) => {
@@ -123,6 +144,7 @@ const FilterForm = ({ closeRef }: any) => {
             .flatMap((el: any) => el.productCategories);
 
     setCategoryData(selectedCategories);
+    setCategory([]);
   };
 
   const getData = (url: string) => {
@@ -144,14 +166,19 @@ const FilterForm = ({ closeRef }: any) => {
       setFittingData(
         typesData?.data
           ?.flatMap((el: any) => el.productCategories)
-          .find((el: any) => el.id == category[0])?.productFittings
+          .filter((el: any) => category.includes(el.id))
+          .flatMap((el: any) => el.productFittings)
+          .filter(
+            (item: any, index: any, self: any) =>
+              index === self.findIndex((t: any) => t.id === item.id)
+          )
       );
 
       setFittingName(
         typesData?.data
           ?.flatMap((el: any) => el.productCategories)
           ?.flatMap((categoryEl: any) => categoryEl?.productFittings)
-          ?.find((el: any) => el.id == fitting[0])?.name
+          ?.find((el: any) => el?.id == fitting[0])?.name
       );
 
       setSizeData(
@@ -181,8 +208,6 @@ const FilterForm = ({ closeRef }: any) => {
   const handleRangeChange = (value: any) => {
     setRange(value);
   };
-
-  console.log(brandData);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -229,7 +254,7 @@ const FilterForm = ({ closeRef }: any) => {
     }
 
     if (fitting.length > 0) {
-      queryParams.push(`sortFitting=${size.join(",")}`);
+      queryParams.push(`sortFitting=${fitting.join(",")}`);
     }
 
     if (size.length > 0) {
@@ -253,9 +278,9 @@ const FilterForm = ({ closeRef }: any) => {
 
     // Add nameSegments to the URL if there are any
     const fullPath =
-      nameSegments.length > 0
-        ? `/products-filter${queryString}&page=1/${nameSegments.join("/")}`
-        : `/products-filter${queryString}&page=1`;
+      brandName.length > 0
+        ? `/products-filter${queryString}/1/${brandName.join(", ")}`
+        : `/products-filter${queryString}/1`;
 
     // Navigate to the constructed URL
     router.push(fullPath);
@@ -460,62 +485,38 @@ const FilterForm = ({ closeRef }: any) => {
           </div>
           {open.includes(8) && (
             <div className=" w-full">
-              <Popover
-                open={openSelectFitting}
-                onOpenChange={setOpenSelectFitting}
-              >
-                <PopoverTrigger className=" w-full" asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className="w-full justify-between !rounded-md"
-                  >
-                    {fittingName ? fittingName : "Fittings"}
-                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className=" w-full h-full p-0">
-                  <Command defaultValue={fitting[0] as string}>
-                    <CommandInput
-                      placeholder="Search Fitting..."
-                      className="h-9"
-                    />
-                    <CommandEmpty>No fitting found!</CommandEmpty>
-                    <CommandList>
-                      <CommandGroup>
-                        {fittingData?.map(({ id, name }: any) => (
-                          <CommandItem
-                            className={cn(fitting[0] === id ? "bg-accent" : "")}
-                            key={id}
-                            value={name}
-                            onSelect={() => {
-                              const selectedFitting = fittingData.find(
-                                (el: any) => el.id === id
-                              );
-                              setSizeData(
-                                selectedFitting?.productSizings || []
-                              );
-                              setOpenSelectFitting(false);
-                              setFittingName(selectedFitting?.name || ""); // Set categoryName properly
-                              handleFittingChange(id);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                fitting.includes(id)
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <>
+                {fittingData?.length > 0 && (
+                  <div className=" space-y-1.5 basis-1/2">
+                    {fittingData?.map(({ id, name }: any) => (
+                      <div
+                        key={id}
+                        className="flex items-center select-none space-x-2 bg-secondary p-3"
+                      >
+                        <Checkbox
+                          id={name}
+                          checked={fitting.includes(id)}
+                          onCheckedChange={() => {
+                            const selectedFitting = fittingData.find(
+                              (el: any) => el.id === id
+                            );
+                            setSizeData(selectedFitting?.productSizings || []);
+                            setOpenSelectFitting(false);
+                            setFittingName(selectedFitting?.name || "");
+                            handleFittingChange(id);
+                          }}
+                        />
+                        <label
+                          htmlFor={name}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             </div>
           )}
         </div>
@@ -646,20 +647,51 @@ const FilterForm = ({ closeRef }: any) => {
         >
           Cancel
         </Button>
-        <Button
-          disabled={
-            genders.length == 0 &&
-            brands.length == 0 &&
-            type.length == 0 &&
-            range[1] == 0 &&
-            size.length == 0 &&
-            category.length == 0
-          }
-          type="submit"
-          size="sm"
-        >
-          Save changes
-        </Button>
+        {genders.length == 0 &&
+        brands.length == 0 &&
+        type.length == 0 &&
+        range[1] == 0 &&
+        size.length == 0 &&
+        category.length == 0 ? (
+          <Button
+            type="button"
+            onClick={() => {
+              setGenders([]);
+              setBrands([]);
+              setBrandName([]);
+              setType([]);
+              setRange([50000, 0]);
+              setSize([]);
+              setCategory([]);
+              setFitting([]);
+              setSize([]);
+              setSizeData([]);
+              setFittingData([]);
+              setCategoryData([]);
+              setCategoryName([]);
+              setFittingName("");
+              closeRef.current && closeRef.current.click();
+            }}
+            size="sm"
+          >
+            Save changes
+          </Button>
+        ) : (
+          <Button
+            disabled={
+              genders.length == 0 &&
+              brands.length == 0 &&
+              type.length == 0 &&
+              range[1] == 0 &&
+              size.length == 0 &&
+              category.length == 0
+            }
+            type="submit"
+            size="sm"
+          >
+            Save changes
+          </Button>
+        )}
       </div>
     </form>
   );
